@@ -1,77 +1,78 @@
 //#include <LoRa-E5.h>
 #include <SoftwareSerial.h>
 
-SoftwareSerial Serial_to_LoRa (D5, D6); // D5 : GPIO14 Rx to Lora D6 : GPIO12 Tx to Lora 
-// GPIO3 to RX, GPIO1 to TX reserved to ESP8266 to USB convert
+SoftwareSerial Serial_to_LoRa (D5, D6); //D5 : GPIO14 Rx to Lora D6 : GPIO12 Tx to Lora 
+//GPIO3 to RX, GPIO1 to TX reserved to ESP8266 to USB convert
 
-//Creer mini fonction pour l affichage synthetique type Serial_to_LoRa_function (str commande, str texte_affiche, int delay )
+//Envoi commande via le port serie de LoRa to TTN et affaichage de commande par liasion serie de ESP to PC
+void Serial_to_LoRa_function(String commande, String texte_affiche, int delayTime) 
+{
+  //Serial.print("\nSerial_to_LoRa" + texte_affiche);  //Utile au deboguage
+  Serial_to_LoRa.write(commande.c_str());
+  Serial.print(Serial_to_LoRa.readString());
+  
+  delay(delayTime);
+}
 
 void setup()
 {
   delay (3000);
+  Serial.println("\nDebut du programme :");
   Serial.begin(9600); //Monitor
   Serial_to_LoRa.begin(9600); //LoRa  
   delay (2000);
 
-  Serial_to_LoRa.write ("AT+ID=DevEUI,70B3D57ED006AE59 ,");
-  Serial.println("\n\nSerial_to_LoRa \"AT+ID=DevEUI\"");
-  delay (1000);
-  Serial_to_LoRa.write ("AT+ID=AppEUI,A0A0A0A0A0A0A0A0 ");
-  Serial.println("Serial_to_LoRa \"AT+ID=AppEUI\"");
-  delay (1000);
-  Serial_to_LoRa.write ("AT+KEY=APPKEY,B3C21FF5B9ECD87A0BB702B2C3D87459 ");
-  Serial.println("Serial_to_LoRa \"AT+KEY=APPKEY\"\n");
-  delay (1000);
+  Serial.println();
+  Serial_to_LoRa_function("AT", " \"AT\"", 2000); 
 
-  Serial_to_LoRa.write ("AT+DR=EU868");
-  Serial.println("Serial_to_LoRa \"AT+DR=EU868\"");
-  delay (2000);
-
-  Serial_to_LoRa.write ("AT+MODE=LWOTAA ");
-  Serial.println("Serial_to_LoRa \"AT+MODE=LWOTAA \"");
-  delay (2000);
-
-  Serial_to_LoRa.write ("AT+JOIN");
-  Serial.println("Serial_to_LoRa \"AT+JOIN\"");
-  delay (2000);
-  Serial_to_LoRa.write ("AT");
-  Serial.println("Serial_to_LoRa \"AT\"");
-  
-  
-
+  //Configuration des parametres de connection
+  Serial_to_LoRa_function("AT+ID=DevEUI,70B3D57ED006AE59", " \"AT+ID=DevEUI\"", 1000);
+  Serial_to_LoRa_function("AT+ID=AppEUI,A0A0A0A0A0A0A0A0", " \"AT+ID=AppEUI\"", 1000);
+  Serial_to_LoRa_function("AT+KEY=APPKEY,B3C21FF5B9ECD87A0BB702B2C3D87459", " \"AT+KEY=APPKEY\"", 1000);
+  Serial.println();
+  //Commande Annexe
+  Serial_to_LoRa_function("AT+DR=EU868", " \"AT+DR=EU868\"", 2000);
+  Serial_to_LoRa_function("AT+MODE=LWOTAA", " \"AT+MODE=LWOTAA\"", 2000);
+  Serial_to_LoRa_function("AT+JOIN", " \"AT+JOIN\"", 2000);
+  Serial_to_LoRa_function("AT", " \"AT\"", 1000); 
+  Serial.println();
 }
 
 void loop() 
 {
+  Serial.println();
+  Serial.println("Debut de transmission :");
   for (int ii = 1; ii < 10; ii++)
-{
-    if (Serial_to_LoRa.available())
+  { 
+    if (Serial_to_LoRa.readString())
     {
-        delay(1000);
+      delay(1000);
 
-        // Utilisation d'un seul print pour AT+MSG avec la valeur de ii
-        Serial_to_LoRa.print("AT+MSG=");
-        Serial_to_LoRa.println(ii); // Incrémente le numéro
-        Serial.println("Serial_to_LoRa \"AT+MSG=" + String(ii) + "\"");
+      Serial_to_LoRa.write(("AT+MSG=" + String(ii+20)).c_str());
+      Serial.print(Serial_to_LoRa.readString());
 
-        delay(4000);
+      Serial.println("Serial_to_LoRa \"AT+MSG=" + String(ii+20) + "°C\"");
+
+      delay(3000);
     }
     else
     {
-        Serial.print("Serial_to_LoRa not available");
-        delay(500);
+      Serial.print("Attente de reponse - Cablage a verifier");
+      delay(500);
 
-        // Pause visuelle
-        for (int i = 0; i < 8; i++)
+      //Pause visuelle avec des petits points pour savoir que le systeme n est pas bloque
+      int nb_point = 10;
+      int delay_tot = 2000; //ms
+      for (int i = 0; i < nb_point; i++)
+      {
+        Serial.printf(" .");
+        if (i == nb_point-1)
         {
-            Serial.printf(" .");
-            if (i == 7)
-            {
-                Serial.print("\n");
-            }
-            delay(200);
+          Serial.print("\n");
         }
+        delay(delay_tot/nb_point);
+      }
     }
-}
+  }
 
 }
