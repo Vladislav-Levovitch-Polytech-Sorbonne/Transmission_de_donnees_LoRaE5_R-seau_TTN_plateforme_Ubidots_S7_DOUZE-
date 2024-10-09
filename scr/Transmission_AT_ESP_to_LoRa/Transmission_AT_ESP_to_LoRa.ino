@@ -26,15 +26,15 @@ void setup()
   Serial_to_LoRa_function("AT", " \"AT\"", 2000); 
 
   //Configuration des parametres de connection
-  Serial_to_LoRa_function("AT+ID=DevEUI,70B3D57ED006AE59", " \"AT+ID=DevEUI\"", 1000);
-  Serial_to_LoRa_function("AT+ID=AppEUI,A0A0A0A0A0A0A0A0", " \"AT+ID=AppEUI\"", 1000);
-  Serial_to_LoRa_function("AT+KEY=APPKEY,B3C21FF5B9ECD87A0BB702B2C3D87459", " \"AT+KEY=APPKEY\"", 1000);
+  Serial_to_LoRa_function("AT+ID=DevEUI,70B3D57ED006AE59", " \"AT+ID=DevEUI\"", 5000);
+  Serial_to_LoRa_function("AT+ID=AppEUI,A0A0A0A0A0A0A0A0", " \"AT+ID=AppEUI\"", 5000);
+  Serial_to_LoRa_function("AT+KEY=APPKEY,B3C21FF5B9ECD87A0BB702B2C3D87459", " \"AT+KEY=APPKEY\"", 5000);
   Serial.println();
   //Commande Annexe
-  Serial_to_LoRa_function("AT+DR=EU868", " \"AT+DR=EU868\"", 2000);
-  Serial_to_LoRa_function("AT+MODE=LWOTAA", " \"AT+MODE=LWOTAA\"", 2000);
-  Serial_to_LoRa_function("AT+JOIN", " \"AT+JOIN\"", 2000);
-  Serial_to_LoRa_function("AT", " \"AT\"", 1000); 
+  Serial_to_LoRa_function("AT+DR=EU868", " \"AT+DR=EU868\"", 5000);
+  Serial_to_LoRa_function("AT+MODE=LWOTAA", " \"AT+MODE=LWOTAA\"", 5000);
+  Serial_to_LoRa_function("AT+JOIN", " \"AT+JOIN\"", 10000);
+  Serial_to_LoRa_function("AT", " \"AT\"", 2000); 
   Serial.println();
 }
 
@@ -46,14 +46,14 @@ void loop()
   { 
     if (Serial_to_LoRa.readString())
     {
-      delay(1000);
+      delay(4000);
 
       Serial_to_LoRa.write(("AT+MSG=" + String(ii+20)).c_str());
       Serial.print(Serial_to_LoRa.readString());
 
-      Serial.println("Serial_to_LoRa \"AT+MSG=" + String(ii+20) + "°C\"");
+      //Serial.println("Serial_to_LoRa \"AT+MSG=" + String(ii+20) + "°C\"");
 
-      delay(3000);
+      delay(4000);
     }
     else
     {
